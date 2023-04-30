@@ -2,7 +2,6 @@ package com.nailorsh.fuels.theme
 
 import android.view.ContextThemeWrapper
 import android.widget.CalendarView
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -27,7 +25,6 @@ import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.BottomSheetState
 import androidx.compose.material.BottomSheetValue
 import androidx.compose.material.Button
-import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
@@ -49,12 +46,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.nailorsh.fuels.ui.theme.DarkRed
+import com.nailorsh.fuels.ui.theme.Red
+import com.github.mikephil.charting.*
+import com.github.mikephil.charting.charts.*
+import com.github.mikephil.charting.components.*
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.github.mikephil.charting.interfaces.datasets.*
 import com.nailorsh.fuels.R
 import com.nailorsh.fuels.data.retrofit.Card
 import com.nailorsh.fuels.data.retrofit.City
@@ -154,11 +161,11 @@ fun getCost(cityApi: CityApi, name: String, date: String): List<Double> {
 
 @Composable
 fun SelectionDataScreen(
-    onCardClicked: (String) -> Unit = {},
+    onListCardClicked: (String) -> Unit = {},
     cityApi: CityApi,
     selectedCity: String
 ) {
-    CalendarBottomSheet(LocalDate.now().minusMonths(6), cityApi, selectedCity)
+    CalendarBottomSheet(LocalDate.now().minusMonths(6), cityApi, selectedCity, onListCardClicked)
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -166,7 +173,8 @@ fun SelectionDataScreen(
 fun CalendarBottomSheet(
     date: LocalDate,
     cityApi: CityApi,
-    selectedCity: String
+    selectedCity: String,
+    onListCardClicked: (String) -> Unit = {}
 ) {
     val sheetState = rememberBottomSheetState(
         initialValue = BottomSheetValue.Collapsed
@@ -211,7 +219,7 @@ fun CalendarBottomSheet(
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             ShowStartAndEndData(sheetState = sheetState, scope = scope)
-            ListOfDataCards(cityApi, selectedCity)
+            ListOfDataCards(cityApi, selectedCity, onListCardClicked)
         }
     }
 }
@@ -248,7 +256,12 @@ fun ShowStartAndEndData(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun SelectionData(dataType: String, sheetState: BottomSheetState, scope: CoroutineScope, modifier: Modifier = Modifier) {
+fun SelectionData(
+    dataType: String,
+    sheetState: BottomSheetState,
+    scope: CoroutineScope,
+    modifier: Modifier = Modifier
+) {
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.Center,
@@ -262,7 +275,7 @@ fun SelectionData(dataType: String, sheetState: BottomSheetState, scope: Corouti
                     sheetState.collapse()
                 }
             }
-        } ) {
+        }) {
             Icon(
                 imageVector = Icons.Default.DateRange,
                 contentDescription = dataType,
@@ -277,7 +290,8 @@ fun SelectionData(dataType: String, sheetState: BottomSheetState, scope: Corouti
 @Composable
 fun ListOfDataCards(
     cityApi: CityApi,
-    selectedCity: String
+    selectedCity: String,
+    onListCardClicked: (String) -> Unit = {}
 ) {
     val startData = "2023-03-01"
     val endData = "2023-04-30"
@@ -300,13 +314,18 @@ fun ListOfDataCards(
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         items(cardsData) { card ->
-            DataCard(card.date, fuels, card.prices)
+            DataCard(card.date, fuels, card.prices, onListCardClicked)
         }
     }
 }
 
 @Composable
-fun DataCard(data: String, fuels: List<String>, prices: List<Double>) {
+fun DataCard(
+    data: String,
+    fuels: List<String>,
+    prices: List<Double>,
+    onListCardClicked: (String) -> Unit = {}
+) {
 //    Card(
 //        elevation = 10.dp,
 //        modifier = Modifier
@@ -321,7 +340,7 @@ fun DataCard(data: String, fuels: List<String>, prices: List<Double>) {
             .padding(40.dp)
             .background(Color.White, shape = RoundedCornerShape(20.dp))
             .clickable {
-
+                onListCardClicked
             }
     )
 
@@ -439,11 +458,13 @@ fun DatePicker(
                     .padding(10.dp)
             ) {
                 TextButton(onClick = {
-                }) { Text (
-                    text = selDate.value.format(DateTimeFormatter.ofPattern("YYYY")),
-                    style = MaterialTheme.typography.subtitle2,
-                    color = MaterialTheme.colors.onPrimary
-                )}
+                }) {
+                    Text(
+                        text = selDate.value.format(DateTimeFormatter.ofPattern("YYYY")),
+                        style = MaterialTheme.typography.subtitle2,
+                        color = MaterialTheme.colors.onPrimary
+                    )
+                }
 
                 Spacer(modifier = Modifier.size(10.dp))
 
@@ -496,7 +517,8 @@ fun CustomCalendarView(onDateSelected: (LocalDate) -> Unit, date: LocalDate) {
         AndroidView(
             modifier = Modifier.wrapContentSize(),
             factory = { context ->
-                val calendarView = CalendarView(ContextThemeWrapper(context, R.style.CalenderViewCustom))
+                val calendarView =
+                    CalendarView(ContextThemeWrapper(context, R.style.CalenderViewCustom))
                 calendarView.date = date.atStartOfDay(ZoneId.systemDefault()).toEpochSecond() * 1000
                 calendarView.maxDate = Calendar.getInstance().timeInMillis
                 calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
@@ -510,7 +532,8 @@ fun CustomCalendarView(onDateSelected: (LocalDate) -> Unit, date: LocalDate) {
             },
             update = { view ->
                 view.maxDate = Calendar.getInstance().timeInMillis
-                view.date = LocalDate.of(currentYear, currentMonth, currentDay).atStartOfDay(ZoneId.systemDefault()).toEpochSecond() * 1000
+                view.date = LocalDate.of(currentYear, currentMonth, currentDay)
+                    .atStartOfDay(ZoneId.systemDefault()).toEpochSecond() * 1000
                 view.setOnDateChangeListener { _, year, month, dayOfMonth ->
                     currentYear = year
                     currentMonth = month + 1
@@ -522,7 +545,6 @@ fun CustomCalendarView(onDateSelected: (LocalDate) -> Unit, date: LocalDate) {
         )
     }
 }
-
 
 
 //@Preview(
@@ -538,9 +560,6 @@ fun CustomCalendarView(onDateSelected: (LocalDate) -> Unit, date: LocalDate) {
 //)
 
 
-
-
-
 //@Preview(
 //    name = "SelectionDataScreen",
 //    showSystemUi = true,
@@ -548,3 +567,74 @@ fun CustomCalendarView(onDateSelected: (LocalDate) -> Unit, date: LocalDate) {
 //)
 //@Composable
 //fun SelectionDataPreview() = ShowStartAndEndData()
+@Composable
+fun BarChartView(
+    fuel: List<String>,
+    oldPrices: List<Double>,
+    newPrices: List<Double>,
+    oldDate: LocalDate,
+    newDate: LocalDate
+) {
+    MaterialTheme {
+        AndroidView(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(20.dp, 20.dp),
+            factory = { context ->
+                val barChart = BarChart(context)
+
+                // Конфигурируем BarChart
+                barChart.description.isEnabled = false // Отключаем описание графика
+                barChart.setPinchZoom(false) // Отключаем приближение жестами
+
+                val yAxis = barChart.axisLeft // Получаем ось Y
+                yAxis.axisMinimum = 0f
+                yAxis.axisMaximum = 100f
+                yAxis.setDrawGridLines(false) // Отключаем сетку на оси Y
+
+                barChart.axisRight.isEnabled = false // Отключаем правую ось Y
+                barChart.legend.isEnabled = true // Отключаем легенду
+
+                // Заполняем данными
+                val entries1 = mutableListOf<BarEntry>()
+                val entries2 = mutableListOf<BarEntry>()
+                for (i: Int in fuel.indices) {
+                    entries1.add(BarEntry(i.toFloat() - 0.2f, oldPrices[i].toFloat()))
+                    entries2.add(BarEntry(i.toFloat() + 0.2f, newPrices[i].toFloat()))
+                }
+                val dataSet1 = BarDataSet(entries1, "Цена $oldDate")
+                val dataSet2 = BarDataSet(entries2, "Цена $newDate")
+
+                val dataSet = BarData(dataSet1, dataSet2)
+                dataSet1.valueTextSize = 14f
+                dataSet1.color = Red.toArgb()
+                dataSet2.valueTextSize = 14f
+                dataSet2.color = DarkRed.toArgb()
+
+                barChart.data = dataSet
+                barChart.data.barWidth = 0.25f
+
+                val xAxis = barChart.xAxis // Получаем ось X
+                xAxis.labelCount = fuel.size
+                xAxis.textSize = 24f
+                xAxis.position = XAxis.XAxisPosition.BOTTOM // Позиционируем её внизу
+                xAxis.setDrawGridLines(false) // Отключаем сетку на оси X
+                xAxis.valueFormatter =
+                    IndexAxisValueFormatter(fuel) // Устанавливаем названия топлив
+                val legend = barChart.legend
+                legend.verticalAlignment = Legend.LegendVerticalAlignment.TOP // Позиция легенды
+                legend.horizontalAlignment =
+                    Legend.LegendHorizontalAlignment.RIGHT // Позиция легенды
+                legend.setDrawInside(false) // Включаем отображение легенды внутри графика
+                legend.textSize = 16f // Размер текста в легенде
+                legend.textColor = Color.Black.toArgb() // Цвет текста в легенде
+                legend.form = Legend.LegendForm.SQUARE // Форма маркера в легенде
+                legend.formSize = 12f
+                legend.formToTextSpace = 8f
+                legend.yEntrySpace = 12f
+
+                barChart
+            }
+        )
+    }
+}

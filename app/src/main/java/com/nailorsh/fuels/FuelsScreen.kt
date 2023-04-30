@@ -24,6 +24,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.nailorsh.fuels.data.retrofit.CityApi
 import com.nailorsh.fuels.theme.FuelsViewModel
+import com.nailorsh.fuels.theme.GraphicScreen
 import com.nailorsh.fuels.theme.ListOfDataCards
 import com.nailorsh.fuels.theme.SelectionCityScreen
 import com.nailorsh.fuels.theme.SelectionDataScreen
@@ -31,6 +32,7 @@ import com.nailorsh.fuels.theme.StartSplashScreen
 import com.nailorsh.fuels.ui.theme.BrandColor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import java.time.LocalDate
 
 enum class FuelsScreen(@StringRes val title: Int) {
     Start(title = R.string.app_name),
@@ -126,14 +128,26 @@ fun FuelsApp(
             composable(route = FuelsScreen.Date.name) {
                 SelectionDataScreen(
                     cityApi = cityApi,
-                    selectedCity = uiState.city
+                    selectedCity = uiState.city,
+                    onListCardClicked = {
+                        navController.navigate(FuelsScreen.Graphic.name)
+                    }
                 )
-//                SelectStartDate(
-//                    viewModel.setStartDate(it)
-//                ),
-//                SelectEndDate(
-//                    viewModel.setEndDate(it)
-//                )
+
+            }
+            composable(route = FuelsScreen.Graphic.name) {
+                val fuel = listOf("A-92", "A-95", "ДТ")
+                val oldPrices = listOf(37.5, 40.1, 42.9)
+                val newPrices = listOf(41.0, 43.8, 46.5)
+                val oldDate = LocalDate.of(2020, 9, 1)
+                val newDate = LocalDate.of(2020, 10, 1)
+                GraphicScreen(
+                    fuel = fuel,
+                    oldPrices = oldPrices,
+                    newPrices = newPrices,
+                    oldDate = oldDate,
+                    newDate = newDate
+                )
             }
         }
     }
