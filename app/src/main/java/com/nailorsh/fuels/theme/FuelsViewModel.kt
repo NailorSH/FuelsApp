@@ -28,10 +28,24 @@ class FuelsViewModel : ViewModel() {
         }
     }
 
-    fun setDate(pickupDate: String) {
+    fun setCitiesList(selectedCitiesList: List<String>) {
+        _uiState.update { currentState ->
+            currentState.copy(cities = selectedCitiesList)
+        }
+    }
+
+    fun setStartDate(pickupDate: String) {
         _uiState.update { currentState ->
             currentState.copy(
-                date = pickupDate
+                startDate = pickupDate
+            )
+        }
+    }
+
+    fun setEndDate(pickupDate: String) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                endDate = pickupDate
             )
         }
     }

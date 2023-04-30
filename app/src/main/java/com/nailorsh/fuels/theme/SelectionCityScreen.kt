@@ -14,36 +14,54 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.nailorsh.fuels.data.retrofit.CityApi
 import com.nailorsh.fuels.ui.theme.BrandColor
+import kotlinx.coroutines.runBlocking
+
+
+fun getAllCities(cityApi: CityApi): List<String> {
+    val cities = mutableListOf<String>()
+    val allCities = runBlocking { cityApi.getAllCities() }
+
+    for (city in allCities) {
+        cities.add(city.name)
+    }
+
+    return cities
+}
 
 @Composable
 fun SelectionCityScreen(
-    onListItemClicked: (String) -> Unit = {}
+    onListItemClicked: (String) -> Unit = {},
+//    onDownloadData: (String) -> Unit = {},
+//    citiesList: List<String>,
+    cityApi: CityApi
 ) {
-    val citiesList = listOf(
-        "Москва",
-        "Питер",
-        "Новосиб",
-        "55",
-        "55",
-        "55",
-        "55",
-        "55",
-        "55",
-        "55",
-        "55",
-        "55",
-        "55",
-        "55",
-        "55",
-        "55",
-        "55",
-        "55",
-        "55"
-    )
+
+    val citiesList = getAllCities(cityApi)
+//    val citiesList = listOf(
+//        "Москва",
+//        "Питер",
+//        "Новосиб",
+//        "55",
+//        "55",
+//        "55",
+//        "55",
+//        "55",
+//        "55",
+//        "55",
+//        "55",
+//        "55",
+//        "55",
+//        "55",
+//        "55",
+//        "55",
+//        "55",
+//        "55",
+//        "55"
+//    )
 
     Scaffold { innerPadding ->
         LazyColumn(
@@ -76,10 +94,10 @@ fun SelectionCityScreen(
     }
 }
 
-@Preview(
-    name = "SelectionCityScreenPreview",
-    showSystemUi = false,
-    showBackground = true
-)
-@Composable
-fun SelectionCityScreenPreview() = SelectionCityScreen()
+//@Preview(
+//    name = "SelectionCityScreenPreview",
+//    showSystemUi = false,
+//    showBackground = true
+//)
+//@Composable
+//fun SelectionCityScreenPreview() = SelectionCityScreen()

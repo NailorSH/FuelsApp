@@ -15,6 +15,8 @@
  */
 package com.nailorsh.fuels.data
 
+
+
 /**
  * Data class that represents the current UI state in terms of [quantity], [flavor],
  * [dateOptions], selected pickup [date] and [price]
@@ -24,4 +26,9 @@ data class FuelsUiState(
     val city: String = "",
     val price: String = "",
     val date: String = "",
+    val startDate: String = "",
+    val endDate: String = "",
+    val cities: List<String> = listOf(),
+    val fuels: List<String> = listOf("ДТ", "92", "95"),
+    val prices: List<Double> = mutableListOf<Double>()
 )

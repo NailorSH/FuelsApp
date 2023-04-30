@@ -4,4 +4,9 @@
     <style name="Theme.Fuels" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:statusBarColor">#DB2B36</item>
     </style>
+    <style name="CalenderViewCustom" parent="@android:style/Widget.CalendarView">
+        <item name="android:colorAccent">@color/red</item>
+
+        <!--            <item name="android:unfocusedMonthDateColor">@color/purple_500</item>-->
+    </style>
 </resources>

@@ -22,10 +22,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.nailorsh.fuels.data.retrofit.CityApi
 import com.nailorsh.fuels.theme.FuelsViewModel
+import com.nailorsh.fuels.theme.ListOfDataCards
 import com.nailorsh.fuels.theme.SelectionCityScreen
+import com.nailorsh.fuels.theme.SelectionDataScreen
 import com.nailorsh.fuels.theme.StartSplashScreen
 import com.nailorsh.fuels.ui.theme.BrandColor
+import retrofit2.Retrofit
+import retrofit2.converter.moshi.MoshiConverterFactory
 
 enum class FuelsScreen(@StringRes val title: Int) {
     Start(title = R.string.app_name),
@@ -71,6 +76,10 @@ fun FuelsApp(
     val currentFuelsScreen = FuelsScreen.valueOf(
         backStackEntry?.destination?.route ?: FuelsScreen.City.name
     )
+    val retrofit = Retrofit.Builder()
+        .baseUrl("https://my-json-server.typicode.com/nikvoen/server/")
+        .addConverterFactory(MoshiConverterFactory.create()).build()
+    val cityApi = retrofit.create(CityApi::class.java)
 
     Scaffold(
         topBar = {
@@ -100,17 +109,32 @@ fun FuelsApp(
 
             composable(route = FuelsScreen.City.name) {
                 SelectionCityScreen(
-                    onListItemClicked = { viewModel.setCity(it) }
+                    cityApi = cityApi,
+//                    citiesList = uiState.cities,
+//                    onDownloadData = {
+//                        it.let { citiesList ->
+//                            viewModel.setCitiesList(citiesList)
+//                        }
+//                    },
+                    onListItemClicked = {
+                        viewModel.setCity(it)
+                        navController.navigate(FuelsScreen.Date.name)
+                    }
                 )
             }
 
             composable(route = FuelsScreen.Date.name) {
-                val context = LocalContext.current
-                SelectionCityScreen(
-                    onListItemClicked = { viewModel.setCity(it) }
-                )
+//                SelectionDataScreen(
+//                    cityApi = cityApi,
+//                    selectedCity = uiState.city
+//                )
+//                SelectStartDate(
+//                    viewModel.setStartDate(it)
+//                ),
+//                SelectEndDate(
+//                    viewModel.setEndDate(it)
+//                )
             }
-
         }
     }
 }
