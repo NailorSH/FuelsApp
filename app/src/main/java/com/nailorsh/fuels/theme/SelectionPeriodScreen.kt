@@ -68,8 +68,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Calendar
 
 
-fun getDateNotT(date: String): List<Int> {
-    return date.split("-").map { it.toInt() }
+     return date.split("-").map { it.toInt() }
 }
 
 fun compareDate(a: List<Int>, b: List<Int>): Boolean {
