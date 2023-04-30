@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+        <style name="CalenderViewCustom" parent="@android:style/Widget.CalendarView">
+            <item name="android:colorAccent">@color/red</item>
+
+<!--            <item name="android:unfocusedMonthDateColor">@color/purple_500</item>-->
+        </style>
+</resources>
