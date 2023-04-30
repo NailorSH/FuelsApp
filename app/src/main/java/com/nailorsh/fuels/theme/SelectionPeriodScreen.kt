@@ -25,6 +25,7 @@ import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.BottomSheetState
 import androidx.compose.material.BottomSheetValue
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
@@ -62,6 +63,7 @@ import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.interfaces.datasets.*
+import com.nailorsh.fuels.FuelsScreen
 import com.nailorsh.fuels.R
 import com.nailorsh.fuels.data.retrofit.Card
 import com.nailorsh.fuels.data.retrofit.City
@@ -161,7 +163,7 @@ fun getCost(cityApi: CityApi, name: String, date: String): List<Double> {
 
 @Composable
 fun SelectionDataScreen(
-    onListCardClicked: (String) -> Unit = {},
+    onListCardClicked: () -> Unit = {},
     cityApi: CityApi,
     selectedCity: String
 ) {
@@ -174,7 +176,7 @@ fun CalendarBottomSheet(
     date: LocalDate,
     cityApi: CityApi,
     selectedCity: String,
-    onListCardClicked: (String) -> Unit = {}
+    onListCardClicked: () -> Unit = {}
 ) {
     val sheetState = rememberBottomSheetState(
         initialValue = BottomSheetValue.Collapsed
@@ -291,7 +293,7 @@ fun SelectionData(
 fun ListOfDataCards(
     cityApi: CityApi,
     selectedCity: String,
-    onListCardClicked: (String) -> Unit = {}
+    onListCardClicked: () -> Unit = {}
 ) {
     val startData = "2023-03-01"
     val endData = "2023-04-30"
@@ -324,7 +326,7 @@ fun DataCard(
     data: String,
     fuels: List<String>,
     prices: List<Double>,
-    onListCardClicked: (String) -> Unit = {}
+    onListCardClicked: () -> Unit = {}
 ) {
 //    Card(
 //        elevation = 10.dp,
@@ -332,48 +334,52 @@ fun DataCard(
 //            .fillMaxWidth()
 //            .padding(10.dp)
 //    ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(230.dp)
-            .clip(shape = RoundedCornerShape(20.dp))
-            .padding(40.dp)
-            .background(Color.White, shape = RoundedCornerShape(20.dp))
-            .clickable {
-                onListCardClicked
-            }
-    )
+    Button(onClick = {
+        onListCardClicked()
+    },
+        colors = ButtonDefaults.buttonColors(backgroundColor = Color.White, contentColor = Color.Black),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(230.dp)
+                .clip(shape = RoundedCornerShape(20.dp))
+                .padding(40.dp)
+                .background(Color.White, shape = RoundedCornerShape(20.dp))
+        )
 
-    {
-        Text(
-            text = data,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .padding(start = 5.dp, top = 5.dp)
-        )
-        Divider(
-            thickness = 1.dp,
-            modifier = Modifier
-                .padding(15.dp)
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        Row(
-            horizontalArrangement = Arrangement.Center
-        ) {
-            FuelsList(
+        {
+            Text(
+                text = data,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 10.dp),
-                fuels = fuels
+                    .padding(start = 5.dp, top = 5.dp)
             )
-            PricesList(
+            Divider(
+                thickness = 1.dp,
                 modifier = Modifier
-                    .weight(1f),
-                prices = prices
+                    .padding(15.dp)
             )
+            Spacer(modifier = Modifier.height(10.dp))
+            Row(
+                horizontalArrangement = Arrangement.Center
+            ) {
+                FuelsList(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 10.dp),
+                    fuels = fuels
+                )
+                PricesList(
+                    modifier = Modifier
+                        .weight(1f),
+                    prices = prices
+                )
+            }
         }
     }
+
 //    }
 }
 

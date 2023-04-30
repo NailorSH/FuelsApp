@@ -28,7 +28,7 @@ fun GraphicScreen(
     oldPrices: List<Double>,
     newPrices: List<Double>,
     oldDate: LocalDate,
-    newDate: LocalDate
+    newDate: LocalDate = LocalDate.now()
 ) {
     MaterialTheme {
         AndroidView(
