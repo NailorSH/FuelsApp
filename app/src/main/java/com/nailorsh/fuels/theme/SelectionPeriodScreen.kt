@@ -4,7 +4,6 @@ import android.view.ContextThemeWrapper
 import android.widget.CalendarView
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -47,23 +46,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.nailorsh.fuels.ui.theme.DarkRed
-import com.nailorsh.fuels.ui.theme.Red
 import com.github.mikephil.charting.*
 import com.github.mikephil.charting.charts.*
 import com.github.mikephil.charting.components.*
-import com.github.mikephil.charting.data.BarData
-import com.github.mikephil.charting.data.BarDataSet
-import com.github.mikephil.charting.data.BarEntry
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.interfaces.datasets.*
-import com.nailorsh.fuels.FuelsScreen
 import com.nailorsh.fuels.R
 import com.nailorsh.fuels.data.retrofit.Card
 import com.nailorsh.fuels.data.retrofit.City
@@ -126,24 +117,33 @@ fun getCards(
 ): List<Card> {
     val cities = mutableListOf<String>()
     val allCities = runBlocking { cityApi.getAllCities() }
-    val cards = mutableListOf<Card>()
-    val l = getDateNotT(date1)
-    val r = getDateNotT(date2)
-    var tCity = City(0, "", emptyMap())
-    for (city in allCities) {
-        if (city.name == name) {
-            tCity = city
-            break
+    if (allCities.isNotEmpty()) {
+        val cards = mutableListOf<Card>()
+        val l = getDateNotT(date1)
+        val r = getDateNotT(date2)
+        var tCity = City(0, "", emptyMap())
+        for (city in allCities) {
+            if (city.name == name) {
+                tCity = city
+                break
+            }
         }
-    }
 
-    for ((key, value) in tCity.prices) {
-        if (compareDate(getDateNotT(key), l) && compareDate(r, getDateNotT(key))) {
-            cards.add(Card(key, value))
+        for ((key, value) in tCity.prices) {
+            if (compareDate(getDateNotT(key), l) && compareDate(r, getDateNotT(key))) {
+                cards.add(Card(key, value))
+            }
         }
-    }
 
-    return cards
+        return cards
+    } else return listOf(
+        Card("2021-09-01", listOf(500.0, 700.0, 900.0)),
+        Card("2021-09-02", listOf(550.0, 750.0, 950.0)),
+        Card("2021-09-03", listOf(525.0, 725.0, 925.0)),
+        Card("2021-09-04", listOf(600.0, 800.0, 1000.0)),
+        Card("2021-09-05", listOf(575.0, 775.0, 975.0))
+    )
+
 }
 
 
@@ -334,10 +334,14 @@ fun DataCard(
 //            .fillMaxWidth()
 //            .padding(10.dp)
 //    ) {
-    Button(onClick = {
-        onListCardClicked()
-    },
-        colors = ButtonDefaults.buttonColors(backgroundColor = Color.White, contentColor = Color.Black),
+    Button(
+        onClick = {
+            onListCardClicked()
+        },
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = Color.White,
+            contentColor = Color.Black
+        ),
     ) {
         Column(
             modifier = Modifier
