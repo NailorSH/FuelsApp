@@ -124,10 +124,10 @@ fun FuelsApp(
             }
 
             composable(route = FuelsScreen.Date.name) {
-//                SelectionDataScreen(
-//                    cityApi = cityApi,
-//                    selectedCity = uiState.city
-//                )
+                SelectionDataScreen(
+                    cityApi = cityApi,
+                    selectedCity = uiState.city
+                )
 //                SelectStartDate(
 //                    viewModel.setStartDate(it)
 //                ),
