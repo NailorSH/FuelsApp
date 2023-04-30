@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Fuels</string>
     <string name="choose_city">Выберите город</string>
-    <string name="choose_date">Choose date</string>
-    <string name="graphic">Graphic</string>
-    <string name="back_button">Back</string>
+    <string name="choose_date">Период</string>
+    <string name="graphic">Графика</string>
+    <string name="back_button">Назад</string>
 </resources>
